@@ -14,7 +14,7 @@ import { ThemeToggle } from './components/ThemeToggle';
 function App() {
   const { user, profile, loading } = useAuth();
   const { theme } = useTheme();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar starts collapsed
 
   if (loading) {
     return (

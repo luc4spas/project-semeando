@@ -32,18 +32,19 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
         className={`fixed top-0 left-0 h-full shadow-lg z-30 transition-all duration-300 ${
           isOpen ? 'w-64' : 'w-0 lg:w-16'
         } ${
-          theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+          theme === 'dark' ? 'bg-gray-800 border-r border-gray-700' : 'bg-white border-r border-gray-200'
         }`}
       >
-        <div className="flex flex-col h-full">
+        <div className={`flex flex-col h-full ${!isOpen && 'lg:items-center'}`}>
           {/* Toggle button */}
           <button
             onClick={toggleSidebar}
-            className={`p-4 flex items-center justify-center ${
+            className={`p-4 flex items-center justify-center transition-colors ${
               theme === 'dark' 
                 ? 'text-gray-200 hover:bg-gray-700' 
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
+            aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -58,7 +59,7 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-3 transition-colors ${
+                  className={`flex items-center px-4 py-3 transition-colors ${!isOpen && 'lg:justify-center'} ${
                     isActive
                       ? theme === 'dark'
                         ? 'bg-gray-700 text-white'
@@ -67,11 +68,10 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                       ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
+                  title={!isOpen ? item.label : undefined}
                 >
-                  <Icon size={20} className={isActive ? 'text-current' : ''} />
-                  {isOpen && (
-                    <span className="ml-3 text-sm font-medium">{item.label}</span>
-                  )}
+                  <Icon size={20} />
+                  {isOpen && <span className="ml-3">{item.label}</span>}
                 </Link>
               );
             })}
