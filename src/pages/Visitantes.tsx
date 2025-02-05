@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import { VisitantesCard } from '../components/VisitantesCard';
 import { Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Visitante {
   id: number;
@@ -127,6 +128,9 @@ export function Visitantes() {
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       Data da Visita
                     </th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                      Detalhes
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -149,6 +153,9 @@ export function Visitantes() {
                           <div className="text-base text-gray-500">
                             {formatDate(visitante.data_visita)}
                           </div>
+                        </td>
+                        <td className="px-6 py-6 whitespace-nowrap">
+                          <Link to={`/visitante/${visitante.id}`} className="text-blue-500 hover:underline">Detalhes</Link>
                         </td>
                       </motion.tr>
                     ))}

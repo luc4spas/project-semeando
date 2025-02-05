@@ -11,6 +11,7 @@ import { Membros } from './pages/Membros';
 import { MembroDetalhes } from './pages/MembroDetalhes';
 import { ThemeToggle } from './components/ThemeToggle';
 import { Visitantes } from './pages/Visitantes';
+import { VisitanteDetalhes } from './pages/VisitanteDetalhes';
 
 function App() {
   const { user, profile, loading } = useAuth();
@@ -98,6 +99,7 @@ function App() {
                       <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/membros" element={<Membros />} />
+                        <Route path="/visitante/:id" element={<VisitanteDetalhes />} />
                         <Route path="/visitantes" element={<Visitantes />} />
                         <Route path="/membro/:id" element={<MembroDetalhes />} />
                       </Routes>
