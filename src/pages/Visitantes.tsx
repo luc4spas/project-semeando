@@ -126,7 +126,7 @@ export function Visitantes() {
                       Nome
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Data da Visita
+                      SEXO
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       Detalhes
@@ -151,7 +151,7 @@ export function Visitantes() {
                         </td>
                         <td className="px-6 py-6 whitespace-nowrap">
                           <div className="text-base text-gray-500">
-                            {formatDate(visitante.data_visita)}
+                            {visitante.sexo}
                           </div>
                         </td>
                         <td className="px-6 py-6 whitespace-nowrap">
