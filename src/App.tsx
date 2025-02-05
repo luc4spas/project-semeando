@@ -15,6 +15,20 @@ function App() {
   const { user, profile, loading } = useAuth();
   const { theme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar starts collapsed
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    try {
+      setIsSigningOut(true);
+      await signOut();
+      // O redirecionamento será feito pela função signOut
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // O redirecionamento já foi tentado na função signOut
+    }
+  };
 
   if (loading) {
     return (
@@ -61,14 +75,17 @@ function App() {
                             {profile?.full_name} ({profile?.role})
                           </span>
                           <button
-                            onClick={() => signOut()}
+                            onClick={handleSignOut}
+                            disabled={isSigningOut}
                             className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
-                              theme === 'dark'
-                                ? 'bg-indigo-600 hover:bg-indigo-700'
-                                : 'bg-indigo-600 hover:bg-indigo-700'
+                              isSigningOut 
+                                ? 'bg-indigo-400 cursor-not-allowed' 
+                                : theme === 'dark'
+                                  ? 'bg-indigo-600 hover:bg-indigo-700'
+                                  : 'bg-indigo-600 hover:bg-indigo-700'
                             }`}
                           >
-                            Sair
+                            {isSigningOut ? 'Saindo...' : 'Sair'}
                           </button>
                         </div>
                       </div>

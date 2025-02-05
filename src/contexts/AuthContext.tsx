@@ -21,27 +21,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar sessão atual
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        getProfile(session.user).then(setProfile);
+    let mounted = true;
+
+    async function initializeAuth() {
+      try {
+        // Verificar sessão atual
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Erro ao obter sessão:', sessionError);
+          if (mounted) {
+            setUser(null);
+            setProfile(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (mounted) {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            const userProfile = await getProfile(session.user);
+            if (mounted) {
+              setProfile(userProfile);
+            }
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Erro na inicialização da autenticação:', error);
+        if (mounted) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    }
+
+    // Inicializar autenticação
+    initializeAuth();
 
     // Escutar mudanças de autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const profile = await getProfile(session.user);
-        setProfile(profile);
-      } else {
-        setProfile(null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (mounted) {
+        console.log('Auth state changed:', event, session);
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          // Forçar limpeza do localStorage e recarregar a página
+          localStorage.clear();
+          window.location.href = '/';
+          return;
+        }
+
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          try {
+            const profile = await getProfile(session.user);
+            if (mounted) {
+              setProfile(profile);
+            }
+          } catch (error) {
+            console.error('Erro ao obter perfil:', error);
+            if (mounted) {
+              setProfile(null);
+            }
+          }
+        } else {
+          setProfile(null);
+        }
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

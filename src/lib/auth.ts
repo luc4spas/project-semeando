@@ -13,18 +13,29 @@ export interface Profile {
 }
 
 export async function getProfile(user: User): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
+  try {
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout ao buscar perfil')), 10000); // 10 segundos de timeout
+    });
 
-  if (error) {
-    console.error('Error fetching profile:', error);
+    const fetchProfile = supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    const { data, error } = await Promise.race([fetchProfile, timeoutPromise]) as any;
+
+    if (error) {
+      console.error('Erro ao buscar perfil:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar perfil:', error);
     return null;
   }
-
-  return data;
 }
 
 export async function signIn(email: string, password: string) {
@@ -38,8 +49,29 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  try {
+    // Primeiro, limpar qualquer dado local
+    localStorage.clear();
+    
+    // Fazer logout no Supabase
+    const { error } = await supabase.auth.signOut({
+      scope: 'global'  // Isso garante que todas as sessões sejam encerradas
+    });
+    
+    if (error) {
+      console.error('Erro ao fazer logout:', error);
+      throw error;
+    }
+
+    // Forçar redirecionamento para a página inicial
+    window.location.href = '/';
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+    // Mesmo com erro, tentar limpar o estado
+    localStorage.clear();
+    window.location.href = '/';
+    throw error;
+  }
 }
 
 export async function isAdmin(userId: string): Promise<boolean> {
