@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Users, Menu, X } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
   const location = useLocation();
+  const { theme } = useTheme();
 
   const menuItems = [
     { path: '/', icon: Home, label: 'Home' },
@@ -20,22 +22,28 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-gray-800 bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={toggleSidebar}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-30 transition-all duration-300 ${
+        className={`fixed top-0 left-0 h-full shadow-lg z-30 transition-all duration-300 ${
           isOpen ? 'w-64' : 'w-0 lg:w-16'
+        } ${
+          theme === 'dark' ? 'bg-gray-800' : 'bg-white'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Toggle button */}
           <button
             onClick={toggleSidebar}
-            className="p-4 hover:bg-gray-100 flex items-center justify-center"
+            className={`p-4 flex items-center justify-center ${
+              theme === 'dark' 
+                ? 'text-gray-200 hover:bg-gray-700' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -50,12 +58,20 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-3 hover:bg-gray-100 ${
-                    isActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'
+                  className={`flex items-center px-4 py-3 transition-colors ${
+                    isActive
+                      ? theme === 'dark'
+                        ? 'bg-gray-700 text-white'
+                        : 'bg-indigo-50 text-indigo-600'
+                      : theme === 'dark'
+                      ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <Icon size={20} />
-                  {isOpen && <span className="ml-3">{item.label}</span>}
+                  <Icon size={20} className={isActive ? 'text-current' : ''} />
+                  {isOpen && (
+                    <span className="ml-3 text-sm font-medium">{item.label}</span>
+                  )}
                 </Link>
               );
             })}

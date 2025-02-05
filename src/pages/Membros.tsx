@@ -21,12 +21,13 @@ export function Membros() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const pageSize = 10;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   useEffect(() => {
     fetchMembros();
-  }, [currentPage]);
+  }, [currentPage, searchTerm]);
 
   async function fetchMembros() {
     try {
@@ -34,13 +35,19 @@ export function Membros() {
       const from = currentPage * pageSize;
       const to = from + pageSize - 1;
 
-      // Buscar total de registros
-      const { count } = await supabase
+      let query = supabase
         .from('membresia')
         .select('*', { count: 'exact', head: true });
 
+      if (searchTerm) {
+        query = query.ilike('nome', `%${searchTerm}%`);
+      }
+
+      // Buscar total de registros
+      const { count } = await query;
+
       // Buscar dados da página atual
-      const { data, error } = await supabase
+      let dataQuery = supabase
         .from('membresia')
         .select(`
           id,
@@ -49,7 +56,13 @@ export function Membros() {
           telefone_celular,
           created_at,
           status
-        `)
+        `);
+
+      if (searchTerm) {
+        dataQuery = dataQuery.ilike('nome', `%${searchTerm}%`);
+      }
+
+      const { data, error } = await dataQuery
         .range(from, to)
         .order('nome', { ascending: true });
 
@@ -82,6 +95,28 @@ export function Membros() {
           <h1 className="text-2xl font-bold text-gray-900">Membros</h1>
           <div className="text-sm text-gray-600">
             Total: {totalCount} membros
+          </div>
+        </motion.div>
+
+        {/* Campo de busca */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Buscar por nome..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
         </motion.div>
 
@@ -151,8 +186,10 @@ export function Membros() {
                           <td className="px-6 py-6 whitespace-nowrap">
                             <motion.span
                               className={`px-3 py-1 text-base inline-flex leading-5 font-semibold rounded-full ${
-                                membro.status === 'Ativo' 
+                                membro.status === 'Aprovada(o)' 
                                   ? 'bg-green-100 text-green-800' 
+                                  : membro.status === 'Inativo'
+                                  ? 'bg-red-100 text-red-800'
                                   : 'bg-gray-100 text-gray-800'
                               }`}
                               whileHover={{ scale: 1.05 }}
