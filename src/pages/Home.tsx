@@ -1,15 +1,19 @@
 import React from 'react';
 import { MembresiaCard } from '../components/MembresiaCard';
+import { VisitantesCard } from '../components/VisitantesCard';
+import { PageTransition } from '../components/PageTransition';
+import { Helmet } from 'react-helmet-async';
 
 export function Home() {
   return (
-    <div className="p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Bem-vindo ao Sistema
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <PageTransition>
+      <Helmet>
+        <title>Home | Semeando Família</title>
+      </Helmet>
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <MembresiaCard />
+        <VisitantesCard />
       </div>
-    </div>
+    </PageTransition>
   );
 }

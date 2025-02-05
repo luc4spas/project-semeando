@@ -9,8 +9,8 @@ import { PageTransition } from '../components/PageTransition';
 interface Membro {
   id: number;
   nome: string;
-  email: string;
-  telefone_celular: string;
+  email: string | null;
+  telefone_celular: string | null;
   created_at: string;
   status: string;
 }
@@ -19,6 +19,7 @@ export function Membros() {
   const navigate = useNavigate();
   const [membros, setMembros] = useState<Membro[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,6 +33,7 @@ export function Membros() {
   async function fetchMembros() {
     try {
       setLoading(true);
+      setError(null);
       const from = currentPage * pageSize;
       const to = from + pageSize - 1;
 
@@ -68,10 +70,14 @@ export function Membros() {
 
       if (error) throw error;
 
+      console.log('Dados recebidos:', data); // Log para debug
+      console.log('Telefones:', data.map(m => m.telefone_celular)); // Log para verificar telefones
+
       setMembros(data || []);
       setTotalCount(count || 0);
     } catch (error) {
       console.error('Erro ao buscar membros:', error);
+      setError('Erro ao carregar membros. Por favor, tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -81,12 +87,43 @@ export function Membros() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   }
 
+  function formatPhoneNumber(phone: string | null | undefined) {
+    // Retorna '-' se o telefone for null ou undefined
+    if (!phone) return '-';
+    
+    // Log para verificar o tipo do valor recebido
+    console.log('Tipo de telefone recebido:', typeof phone);
+    
+    // Converte para string se necessário
+    const phoneStr = String(phone);
+    
+    // Remove todos os caracteres não numéricos
+    const cleaned = phoneStr.replace(/\D/g, '');
+    
+    // Verifica se é um número válido (com 11 dígitos - incluindo DDD)
+    if (cleaned.length === 11) {
+      // Formato: (XX) XXXXX-XXXX
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    } else if (cleaned.length === 10) {
+      // Formato: (XX) XXXX-XXXX (para números antigos)
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // Retorna o número original se não conseguir formatar
+    return phoneStr;
+  }
+
   return (
     <PageTransition>
       <Helmet>
         <title>Membros | Semeando Família</title>
       </Helmet>
       <div className="p-6">
+        {error ? (
+          <div className="text-red-600 bg-red-50 p-4 rounded-lg mb-4">
+            {error}
+          </div>
+        ) : null}
         <motion.div
           className="flex justify-between items-center mb-6"
           initial={{ opacity: 0, y: -20 }}
@@ -181,7 +218,9 @@ export function Membros() {
                             <div className="text-base text-gray-500">{membro.email}</div>
                           </td>
                           <td className="px-6 py-6 whitespace-nowrap">
-                            <div className="text-base text-gray-500">{membro.telefone_celular}</div>
+                            <div className="text-base text-gray-500">
+                              {membro.telefone_celular ? formatPhoneNumber(membro.telefone_celular) : '-'}
+                            </div>
                           </td>
                           <td className="px-6 py-6 whitespace-nowrap">
                             <motion.span

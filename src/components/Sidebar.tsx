@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, Menu, X } from 'lucide-react';
+import { Home, Users, Menu, X, BaggageClaim } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
@@ -15,6 +15,7 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
   const menuItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/membros', icon: Users, label: 'Membros' },
+    { path: '/visitantes', icon: BaggageClaim, label: 'Visitantes' },
   ];
 
   return (

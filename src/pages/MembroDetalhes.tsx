@@ -59,6 +59,32 @@ export function MembroDetalhes() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   }
 
+  function formatPhoneNumber(phone: string | null | undefined) {
+    // Retorna '-' se o telefone for null ou undefined
+    if (!phone) return '-';
+    
+    // Log para verificar o tipo do valor recebido
+    console.log('Tipo de telefone recebido:', typeof phone);
+    
+    // Converte para string se necessário
+    const phoneStr = String(phone);
+    
+    // Remove todos os caracteres não numéricos
+    const cleaned = phoneStr.replace(/\D/g, '');
+    
+    // Verifica se é um número válido (com 11 dígitos - incluindo DDD)
+    if (cleaned.length === 11) {
+      // Formato: (XX) XXXXX-XXXX
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    } else if (cleaned.length === 10) {
+      // Formato: (XX) XXXX-XXXX (para números antigos)
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // Retorna o número original se não conseguir formatar
+    return phoneStr;
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -137,7 +163,7 @@ export function MembroDetalhes() {
                 <div className="space-y-3">
                   {[
                     { label: 'Email', value: membro.email },
-                    { label: 'Telefone', value: membro.telefone_celular },
+                    { label: 'Telefone', value: formatPhoneNumber(membro.telefone_celular) },
                     { label: 'Data de Nascimento', value: formatDate(membro.data_nascimento) },
                     { label: 'Estado Civil', value: membro.estado_civil },
                     { label: 'Profissão', value: membro.profissao }

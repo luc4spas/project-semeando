@@ -10,6 +10,7 @@ import { Home } from './pages/Home';
 import { Membros } from './pages/Membros';
 import { MembroDetalhes } from './pages/MembroDetalhes';
 import { ThemeToggle } from './components/ThemeToggle';
+import { Visitantes } from './pages/Visitantes';
 
 function App() {
   const { user, profile, loading } = useAuth();
@@ -97,6 +98,7 @@ function App() {
                       <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/membros" element={<Membros />} />
+                        <Route path="/visitantes" element={<Visitantes />} />
                         <Route path="/membro/:id" element={<MembroDetalhes />} />
                       </Routes>
                     </main>
